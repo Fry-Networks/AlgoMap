@@ -2,6 +2,7 @@
     position: fixed;
     top: 50%;
     left: 0;
+    width: 28%;
     transform: translateY(-50%);
     height: 100%;
     border: 1px solid #ccc;

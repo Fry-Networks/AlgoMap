@@ -32,29 +32,33 @@ const MapWindow = ({ selectedH3Indices }) => {
     console.log(selectedPoints);
     return (
       <div className="MapWindow">
-        <h2>Selected Points</h2>
-        <ul>
-          {selectedPoints.map((point) => {
-            //get the bandwidth for each point
-            const data = jsonData.data.filter(
-              (d) => d.location.lat === point[0] && d.location.lng === point[1]
-            )[0];
-            const ip = data.ip;
-            const upload = data.bandwidth.upload;
-            const download = data.bandwidth.download;
-            return (
-              <li key={ip}>
-                {ip} - Up: {upload} - Down:{download}
-              </li>
-            );
-          })}
-        </ul>
+        <div className="blurry"></div>
+        <div className="data">
+          <h2>Selected Points</h2>
+          <ul>
+            {selectedPoints.map((point) => {
+              //get the bandwidth for each point
+              const data = jsonData.data.filter(
+                (d) =>
+                  d.location.lat === point[0] && d.location.lng === point[1]
+              )[0];
+              const ip = data.ip;
+              const upload = data.bandwidth.upload;
+              const download = data.bandwidth.download;
+              return (
+                <li key={ip}>
+                  {ip} - Up: {upload} - Down:{download}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     );
   }
   return (
     <div className="MapWindow">
-      <div className="blurry"> </div>
+      <div className="blurry"></div>
       <div className="data">
         <h2>Nothing has been selected</h2>
       </div>
