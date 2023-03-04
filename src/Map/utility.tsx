@@ -1,5 +1,6 @@
 import WebMercatorViewport from "viewport-mercator-project";
 import { polyfill, geoToH3, h3ToParent } from "h3-js";
+import { WebMercatorViewportProps } from "@math.gl/web-mercator/dist/web-mercator-viewport";
 
 /**
  * Taken from https://stackoverflow.com/questions/56646664/how-can-i-get-the-h3-hexagons-on-a-react-map-gl-deck-gl-viewport
@@ -9,8 +10,9 @@ import { polyfill, geoToH3, h3ToParent } from "h3-js";
  * @returns - bounding box for the given viewport
  */
 
-export function bboxFromViewport(viewport) {
+export function bboxFromViewport(viewport: WebMercatorViewportProps | undefined) {
   const projection = new WebMercatorViewport(viewport);
+  //@ts-ignore
   const { height, width } = viewport;
 
   const [west, north] = projection.unproject([0, 0]);
@@ -27,9 +29,9 @@ export function bboxFromViewport(viewport) {
 * @returns - an array of h3 indices within the given bounding box
  */
 export function getH3IndicesForBB(
-  { north, south, east, west },
+  { north, south, east, west }: any,
   resolution = 8,
-  points
+  points: any
 ) {
   const nw = [north, west];
   const ne = [north, east];
@@ -38,7 +40,7 @@ export function getH3IndicesForBB(
 
   const hexes = polyfill([nw, ne, se, sw], resolution);
   //const hexIndex = geoToH3(point[0], point[1], resolution);
-  const hexIndexes = points.map((point) => geoToH3(point[0], point[1], resolution));
+  const hexIndexes = points.map((point: number[]) => geoToH3(point[0], point[1], resolution));
   return hexIndexes;
 }
 
@@ -49,7 +51,7 @@ export function getH3IndicesForBB(
  * @returns
  */
 
-export function getGeoJson(multipolygon) {
+export function getGeoJson(multipolygon: number[][][][]) {
   const geoJsonFormat = {
     type: "FeatureCollection",
     features: [

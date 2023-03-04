@@ -44,10 +44,10 @@ const sample = {
   ],
 }
 
-const GeoJSONInput = ({ onSubmit }) => {
+const GeoJSONInput = ({ onSubmit }: any) => {
   const [geoJSONInput, setGeoJSONInput] = useState("")
 
-  function handleLoadFromJSON(e) {
+  function handleLoadFromJSON(e: { preventDefault: () => void }) {
     e.preventDefault()
 
     const validJSON = geoJSONInput.replace(/(\w+:)|(\w+ :)/g, function (s) {

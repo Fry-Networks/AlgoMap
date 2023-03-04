@@ -1,10 +1,11 @@
-import DeckGL from "@deck.gl/react";
+import DeckGL from "@deck.gl/react/typed";
 import ReactMapGL from "react-map-gl";
-import { H3HexagonLayer } from "@deck.gl/geo-layers";
+import { H3HexagonLayer } from "@deck.gl/geo-layers/typed";
 import { useState } from "react";
 import { object } from "prop-types";
 
 import { bboxFromViewport, getH3IndicesForBB } from "./utility";
+import { PickingInfo, LayersList } from "@deck.gl/core/typed";
 
 // const token = process.env.REACT_APP_MAPBOX_TOKEN
 const token =
@@ -22,8 +23,29 @@ const INITIAL_VIEW_STATE = {
   width: WIDTH,
 };
 
-const Map = ({ selectedH3Indices, onHexClick, points }) => {
-  let layers = [];
+const Map = ({ selectedH3Indices, onHexClick, points }: any) => {
+  let layers:
+    | H3HexagonLayer<
+        any,
+        {
+          id: "h3-hexagon-layer";
+          data: any;
+          pickable: true;
+          wireframe: true;
+          cellSide: number;
+          filled: true;
+          extruded: true;
+          elevationScale: 0;
+          getHexagon: (d: any) => any;
+          autoHighlight: true;
+          getLineColor: [number, number, number];
+          getFillColor: (d: any) => [number, number, number, number];
+          opacity: 1;
+          onClick: (info: PickingInfo) => void;
+        }
+      >[]
+    | LayersList
+    | undefined = [];
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   if (viewState.zoom > 11) {
     const boundingBox = bboxFromViewport(viewState);
@@ -80,7 +102,7 @@ const Map = ({ selectedH3Indices, onHexClick, points }) => {
       height={HEIGHT}
       width={WIDTH}
       initialViewState={viewState}
-      onViewStateChange={({ viewState }) => setViewState(viewState)}
+      onViewStateChange={({ viewState }) => setViewState(viewState as any)}
       controller={true}
       layers={layers}
     >

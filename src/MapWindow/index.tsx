@@ -1,7 +1,7 @@
 import React from "react";
 import "./MapWindow.css";
 import { polyfill, geoToH3, h3ToParent } from "h3-js";
-const jsonData = require("../testdata.json");
+import jsonData from "../testdata.json";
 
 /*
    {
@@ -18,7 +18,7 @@ const jsonData = require("../testdata.json");
     }[]
   } 
   */
-const MapWindow = ({ selectedH3Indices }) => {
+const MapWindow = ({ selectedH3Indices }: any) => {
   //selectedH3Indices is a Set
   console.log(selectedH3Indices);
   if (selectedH3Indices.size > 0) {

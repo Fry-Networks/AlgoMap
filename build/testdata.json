@@ -1,0 +1,26 @@
+{
+    "data": [
+        {
+            "ip": "192.168.1.1",
+            "location": {
+                "lat": 48.666520,
+                "lng": -1.967943
+            },
+            "bandwidth": {
+                "upload": 100,
+                "download": 1000
+            }
+        },
+        {
+            "ip": "192.168.1.2",
+            "location": {
+                "lat": 48.669808,
+                "lng": -1.982706
+            },
+            "bandwidth": {
+                "upload": 100,
+                "download": 165
+            }
+        }
+    ]
+}
