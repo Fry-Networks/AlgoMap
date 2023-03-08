@@ -1,7 +1,8 @@
 import React from "react";
-import "./MapWindow.css";
+import "./MapWindow.scss";
 import { polyfill, geoToH3, h3ToParent } from "h3-js";
 import jsonData from "../testdata.json";
+import { copyFileSync } from "fs";
 
 /*
    {
@@ -18,36 +19,41 @@ import jsonData from "../testdata.json";
     }[]
   } 
   */
+
+type PointData = {
+  ip: string;
+  upload: number;
+  download: number;
+};
 const MapWindow = ({ selectedH3Indices }: any) => {
   //selectedH3Indices is a Set
   console.log(selectedH3Indices);
   if (selectedH3Indices.size > 0) {
-    const points = jsonData.data.map((d) => [d.location.lat, d.location.lng]);
+    const points = jsonData.data.map((d) => [
+      d.location.lat,
+      d.location.lng,
+      { ip: d.ip, upload: d.bandwidth.upload, download: d.bandwidth.download },
+    ]);
     console.log("selectedH3Indices", selectedH3Indices);
 
-    const selectedPoints = points.filter((point) =>
+    const selectedPoint = points.filter((point) =>
       //point is an array of lat and long, make sure that the lat and long are in the selectedH3Indices
-      selectedH3Indices.has(geoToH3(point[0], point[1], 8))
+      selectedH3Indices.has(geoToH3(point[0] as number, point[1] as number, 8))
     );
-    console.log(selectedPoints);
+
+    console.log("selectedPoint", selectedPoint);
     return (
       <div className="MapWindow">
         <div className="blurry"></div>
         <div className="data">
-          <h2>Selected Points</h2>
-          <ul>
-            {selectedPoints.map((point) => {
+          <h2>Selected Hex ({selectedH3Indices})</h2>
+          <ul className="check-list">
+            {selectedPoint.map((point) => {
               //get the bandwidth for each point
-              const data = jsonData.data.filter(
-                (d) =>
-                  d.location.lat === point[0] && d.location.lng === point[1]
-              )[0];
-              const ip = data.ip;
-              const upload = data.bandwidth.upload;
-              const download = data.bandwidth.download;
+              const { ip, upload, download } = point[2] as PointData;
               return (
                 <li key={ip}>
-                  {ip} - Up: {upload} - Down:{download}
+                  {ip} - ⬆ {upload} mbits/s  ⬇:{download} mbits/s
                 </li>
               );
             })}

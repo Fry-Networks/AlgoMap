@@ -1,6 +1,7 @@
 import DeckGL from "@deck.gl/react/typed";
 import ReactMapGL from "react-map-gl";
 import { H3HexagonLayer } from "@deck.gl/geo-layers/typed";
+import { HeatmapLayer } from "@deck.gl/aggregation-layers/typed";
 import { useState } from "react";
 import { object } from "prop-types";
 
@@ -23,7 +24,15 @@ const INITIAL_VIEW_STATE = {
   width: WIDTH,
 };
 
-const Map = ({ selectedH3Indices, onHexClick, points }: any) => {
+const Map = ({
+  selectedH3Indices,
+  onHexClick,
+  points,
+}: {
+  selectedH3Indices: Set<string>;
+  onHexClick: (selectedH3Indices: Set<string>) => void;
+  points: number[][];
+}) => {
   let layers:
     | H3HexagonLayer<
         any,
@@ -51,7 +60,10 @@ const Map = ({ selectedH3Indices, onHexClick, points }: any) => {
     const boundingBox = bboxFromViewport(viewState);
     const h3Indices = getH3IndicesForBB(boundingBox, 8, points);
     //if the zoom level is too low, don't show the hexagons
-    console.log("h3Indices", h3Indices);
+    const heatPoints = points.map((point) => ({
+      position: [point[1], point[0]],
+      weight: 1,
+    }));
     layers = [
       new H3HexagonLayer({
         id: "h3-hexagon-layer",
@@ -93,7 +105,22 @@ const Map = ({ selectedH3Indices, onHexClick, points }: any) => {
       }),
     ];
   } else {
-    layers = [];
+    layers = [
+      new HeatmapLayer({
+        id: "heatmapLayer",
+        data: points,
+        getPosition: (d) => [d[1], d[0]], // swap longitude and latitude
+        getWeight: (d) => 1,
+        aggregation: "SUM",
+        intensity: 1,
+        radiusPixels: 40,
+        debounceTimeout: 800,
+        colorRange: [
+          [0, 255, 0, 0], // green with alpha=0
+          [30,89,36,255], // black with alpha=255
+        ]
+      }),
+    ];
   }
 
   return (
@@ -107,8 +134,10 @@ const Map = ({ selectedH3Indices, onHexClick, points }: any) => {
       layers={layers}
     >
       <ReactMapGL
-        mapboxApiAccessToken={token}
-        mapStyle="mapbox://styles/mapbox/dark-v10"
+        {...{
+          mapboxAccessToken: token,
+          mapStyle: "mapbox://styles/mapbox/dark-v10",
+        }}
       />
     </DeckGL>
   );

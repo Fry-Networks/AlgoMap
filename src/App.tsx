@@ -4,9 +4,8 @@ import MapWindow from "./MapWindow";
 import { Row, Col, Container } from "reactstrap";
 import Map from "./Map";
 import { getGeoJson } from "./Map/utility";
-import { Source, Layer } from "react-map-gl";
+import { Source, Layer, LayerProps } from "react-map-gl";
 import jsonData from "./testdata.json";
-
 interface H3Indice {}
 
 const App = () => {
@@ -29,33 +28,9 @@ const App = () => {
     })),
   };
 
-  const testData = {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        properties: { mag: 1 },
-        geometry: { type: "Point", coordinates: [-122.4, 37.7] },
-      },
-      {
-        type: "Feature",
-        properties: { mag: 2 },
-        geometry: { type: "Point", coordinates: [-122.4, 37.7] },
-      },
-      {
-        type: "Feature",
-        properties: { mag: 3 },
-        geometry: { type: "Point", coordinates: [-122.4, 37.7] },
-      },
-    ],
-  };
   console.log(data);
-
-  return (
-    <div className="App">
-      <Row>
-        <Col>
-          <Map
+  //@ts-ignore
+  return ( <div className="App"><Row><Col><Map
             {...{
               onHexClick: setH3Indices,
               selectedH3Indices: selectedH3Indices,
