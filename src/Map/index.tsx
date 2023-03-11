@@ -15,6 +15,7 @@ const token =
 //make the map full screen, not only the inner part
 const HEIGHT = window.innerHeight;
 const WIDTH = window.innerWidth;
+let firstRender = true;
 // Viewport settings for Conservatory of Flowers
 const INITIAL_VIEW_STATE = {
   longitude: -1.98313,
@@ -38,12 +39,15 @@ const Map = ({
   const [h3Indices, setH3Indices] = useState([]);
   const [layers, setLayers] = useState([{}]);
   const [heatmapPoints, setHeatmapPoints] = useState([[0]]);
-  console.log("render")
-  //if the zoom level is too low, don't show the hexagons
-  useEffect(() => {
+
+ 
+
+
+  const renderLayers = () => {
     const boundingBox = bboxFromViewport(viewState);
     setH3Indices(getH3IndicesForBB(boundingBox, 8, points));
-    setHeatmapPoints(points.map((point) => [point[1], point[0]]));
+
+    setHeatmapPoints(points.map((point) => [point[1], point[0] ]));
     console.log("effect")
     setLayers([
       new H3HexagonLayer({
@@ -79,15 +83,19 @@ const Map = ({
           onHexClick(new Set(selectedH3Indices));
         },
       }),
+      
       new HeatmapLayer({
         id: "heatmapLayer",
         data: heatmapPoints,
-        getPosition: (d) => d,
+        getPosition: (d) => {
+          console.log(d)
+          return d;
+        },
         getWeight: 1,
         visible: viewState.zoom < 11,
         aggregation: "SUM",
-        intensity: 0.5,
-        radiusPixels: 40,
+        intensity: 1,
+        radiusPixels: 20,
         debounceTimeout: 500,
         colorRange: [
           [0, 0, 0, 0],
@@ -97,12 +105,20 @@ const Map = ({
 
         ],
       }),
+    
+
     ]);
+  };
+  //if the zoom level is too low, don't show the hexagons
+  useEffect(() => {
+    renderLayers();
   }, [points]);
 
+    //@ts-ignore
+  if (layers[0].props?.data.length == 0) renderLayers();
 
 
-  
+
 
   getTooltip = (info: PickingInfo) => {
     if (info.object) {
@@ -125,15 +141,20 @@ const Map = ({
 
       initialViewState={viewState}
       onViewStateChange={({ viewState }) => setViewState(viewState as any)}
-      controller={true}
+      controller={{
+        scrollZoom: {
+          smooth: true,
+        }
+      }}
       layers={layers as any}
+
+      
     // getTooltip={getTooltip}
     >
 
-     <ReactMapGL
+      <ReactMapGL
         {...{
           mapboxAccessToken: token,
-          scrollZoom: false,
           mapStyle: "mapbox://styles/mapbox/dark-v10?optimize=true",
         }}
       />

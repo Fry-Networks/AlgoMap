@@ -17,6 +17,7 @@ const App = () => {
               onHexClick: setH3Indices,
               selectedH3Indices: selectedH3Indices,
               points: points,
+          
             }}
           ></Map>
           <MapWindow {...{ selectedH3Indices }}>
