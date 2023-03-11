@@ -1,5 +1,5 @@
 import WebMercatorViewport from "viewport-mercator-project";
-import { polyfill, geoToH3, h3ToParent } from "h3-js";
+import { polyfill, geoToH3 } from "h3-js";
 import { WebMercatorViewportProps } from "@math.gl/web-mercator/dist/web-mercator-viewport";
 
 /**

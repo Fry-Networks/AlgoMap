@@ -1,13 +1,13 @@
 import DeckGL from "@deck.gl/react/typed";
-import ReactMapGL from "react-map-gl";
 import { H3HexagonLayer } from "@deck.gl/geo-layers/typed";
 import { HeatmapLayer } from "@deck.gl/aggregation-layers/typed";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { object } from "prop-types";
 
 import { bboxFromViewport, getH3IndicesForBB } from "./utility";
-import { PickingInfo, LayersList } from "@deck.gl/core/typed";
-
+import { PickingInfo } from "@deck.gl/core/typed";
+import { geoToH3 } from "h3-js";
+import ReactMapGL from 'react-map-gl';
 // const token = process.env.REACT_APP_MAPBOX_TOKEN
 const token =
   "REDACTED_ROTATE_ME";
@@ -19,7 +19,7 @@ const WIDTH = window.innerWidth;
 const INITIAL_VIEW_STATE = {
   longitude: -1.98313,
   latitude: 48.66777,
-  zoom: 18,
+  zoom: 8,
   height: HEIGHT,
   width: WIDTH,
 };
@@ -33,49 +33,30 @@ const Map = ({
   onHexClick: (selectedH3Indices: Set<string>) => void;
   points: number[][];
 }) => {
-  let layers:
-    | H3HexagonLayer<
-        any,
-        {
-          id: "h3-hexagon-layer";
-          data: any;
-          pickable: true;
-          wireframe: true;
-          cellSide: number;
-          filled: true;
-          extruded: true;
-          elevationScale: 0;
-          getHexagon: (d: any) => any;
-          autoHighlight: true;
-          getLineColor: [number, number, number];
-          getFillColor: (d: any) => [number, number, number, number];
-          opacity: 1;
-          onClick: (info: PickingInfo) => void;
-        }
-      >[]
-    | LayersList
-    | undefined = [];
+  let getTooltip;
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
-  if (viewState.zoom > 11) {
+  const [h3Indices, setH3Indices] = useState([]);
+  const [layers, setLayers] = useState([{}]);
+  const [heatmapPoints, setHeatmapPoints] = useState([[0]]);
+  console.log("render")
+  //if the zoom level is too low, don't show the hexagons
+  useEffect(() => {
     const boundingBox = bboxFromViewport(viewState);
-    const h3Indices = getH3IndicesForBB(boundingBox, 8, points);
-    //if the zoom level is too low, don't show the hexagons
-    const heatPoints = points.map((point) => ({
-      position: [point[1], point[0]],
-      weight: 1,
-    }));
-    layers = [
+    setH3Indices(getH3IndicesForBB(boundingBox, 8, points));
+    setHeatmapPoints(points.map((point) => [point[1], point[0]]));
+    console.log("effect")
+    setLayers([
       new H3HexagonLayer({
         id: "h3-hexagon-layer",
         data: h3Indices,
-        pickable: true,
         wireframe: true,
+        autoHighlight: true,
+        pickable: true,
         cellSide: 100,
         filled: true,
         extruded: true,
         elevationScale: 0,
         getHexagon: (d) => d,
-        autoHighlight: true,
         getLineColor: [0, 0, 0],
         getFillColor: (d) => {
           const isSelected = selectedH3Indices.has(d);
@@ -83,11 +64,9 @@ const Map = ({
           return isSelected ? [242, 141, 59, 50] : [139, 211, 71, 50];
         },
         opacity: 1,
-        //   onHover: (info) => console.log("hover", info),
         onClick: (info) => {
           console.log(info);
           const isAlreadySelected = selectedH3Indices.has(info.object);
-
           if (isAlreadySelected) {
             selectedH3Indices.delete(info.object);
           } else {
@@ -97,48 +76,68 @@ const Map = ({
             }
             selectedH3Indices.add(info.object);
           }
-
-          // Set is a mutable data structure so modifying won't trigger a state update
-          // so you have to create a new one - https://stackoverflow.com/questions/58806883/how-to-use-set-with-reacts-usestate
           onHexClick(new Set(selectedH3Indices));
         },
       }),
-    ];
-  } else {
-    layers = [
       new HeatmapLayer({
         id: "heatmapLayer",
-        data: points,
-        getPosition: (d) => [d[1], d[0]], // swap longitude and latitude
-        getWeight: (d) => 1,
+        data: heatmapPoints,
+        getPosition: (d) => d,
+        getWeight: 1,
+        visible: viewState.zoom < 11,
         aggregation: "SUM",
-        intensity: 1,
+        intensity: 0.5,
         radiusPixels: 40,
-        debounceTimeout: 800,
+        debounceTimeout: 500,
         colorRange: [
-          [0, 255, 0, 0], // green with alpha=0
-          [30,89,36,255], // black with alpha=255
-        ]
-      }),
-    ];
-  }
+          [0, 0, 0, 0],
+          //green 
+          [139, 211, 71, 255],
+          //orange
 
+        ],
+      }),
+    ]);
+  }, [points]);
+
+
+
+  
+
+  getTooltip = (info: PickingInfo) => {
+    if (info.object) {
+      const pointsInHex = points.filter((point) => {
+        const h3Index = geoToH3(point[0], point[1], 8);
+        return h3Index === info.object;
+      });
+      return {
+        html: `<div>
+          <h5>${pointsInHex.length} miner${pointsInHex.length > 1 ? 's' : ''} in hexagon</h5>
+          </div>`,
+      };
+    }
+    return null;
+  };
   return (
     <DeckGL
-      style={{ position: "relative" }}
       height={HEIGHT}
       width={WIDTH}
+
       initialViewState={viewState}
       onViewStateChange={({ viewState }) => setViewState(viewState as any)}
       controller={true}
-      layers={layers}
+      layers={layers as any}
+    // getTooltip={getTooltip}
     >
-      <ReactMapGL
+
+     <ReactMapGL
         {...{
           mapboxAccessToken: token,
-          mapStyle: "mapbox://styles/mapbox/dark-v10",
+          scrollZoom: false,
+          mapStyle: "mapbox://styles/mapbox/dark-v10?optimize=true",
         }}
       />
+
     </DeckGL>
   );
 };
@@ -148,3 +147,12 @@ Map.propTypes = {
 };
 
 export default Map;
+/*
+  <ReactMapGL
+        {...{
+          mapboxAccessToken: token,
+          scrollZoom: false,
+          mapStyle: "mapbox://styles/mapbox/dark-v10?optimize=true",
+        }}
+      />
+      */

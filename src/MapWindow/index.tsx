@@ -1,8 +1,6 @@
-import React from "react";
 import "./MapWindow.scss";
-import { polyfill, geoToH3, h3ToParent } from "h3-js";
+import { geoToH3 } from "h3-js";
 import jsonData from "../testdata.json";
-import { copyFileSync } from "fs";
 
 /*
    {
