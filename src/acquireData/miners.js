@@ -42,17 +42,21 @@ try {
     var BandwidthMonitor_1 = require('bandwidth-monitor');
     var fs_1 = require('fs');
     var wait_1 = function (ms) { return new Promise(function (resolve) { return setTimeout(resolve, ms); }); };
-    console.log(miners_config_json_1.interfaceName.length);
+    var interval = 5 * 60 * 1000;
     if (miners_config_json_1.interfaceName.length > 1) {
         var b_1 = new BandwidthMonitor_1({
             interfaces: [miners_config_json_1.interfaceName]
         });
         try {
             b_1.monitors.get(miners_config_json_1.interfaceName).capture();
+            var lastRx_1 = 0;
             setInterval(function () {
                 console.log(b_1.monitors.get(miners_config_json_1.interfaceName));
-                // b.monitors.en0.close();
-            }, 10000);
+                var currentRx = b_1.monitors.get(miners_config_json_1.interfaceName).totalRx;
+                var diff = currentRx - lastRx_1;
+                lastRx_1 = currentRx;
+                //TODO: MAKE REQUEST
+            }, 1000);
         }
         catch (e) {
             console.log(e);

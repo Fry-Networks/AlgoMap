@@ -12,6 +12,7 @@ try {
         isCapturing: boolean
     }
     const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    const interval = 5 * 60 * 1000;
     if (interfaceName.length > 1) {
         const b = new BandwidthMonitor({
             interfaces: [interfaceName],
@@ -19,10 +20,21 @@ try {
         );
         try {
             b.monitors.get(interfaceName).capture();
+            let lastRx = 0;
+            let lastTx = 0;
             setInterval(() => {
                 console.log(b.monitors.get(interfaceName));
-                // b.monitors.en0.close();
-            }, 10000);
+                const currentRx = b.monitors.get(interfaceName).totalRx
+                const currentTx = b.monitors.get(interfaceName).totalTx
+                const diffRx = currentRx - lastRx;
+                const diffTx = currentTx - lastTx;
+                lastRx = currentRx;
+                lastTx = currentTx;
+
+                //TODO: MAKE REQUEST
+
+
+            }, 1000);
         } catch (e) {
             console.log(e);
             console.log("\n\n===================  I may need root permissions to be used, or the interface you entered is incorrect  ===================\n\n");
@@ -52,7 +64,6 @@ try {
                         b.monitors.get(interfaceName).capture();
                         await wait(15000);
                         b.monitors.get(interfaceName).close();
-             
                         interfacesResults.push(b.monitors.get(interfaceName));
                         resolve(b.monitors.get(interfaceName));
                         } catch (e) {
