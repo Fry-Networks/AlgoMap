@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var miners_config_json_1 = require("./miners_config.json");
 var os = require("os");
+var fetch = require('node-fetch');
 try {
     var BandwidthMonitor_1 = require('bandwidth-monitor');
     var fs_1 = require('fs');
@@ -50,13 +51,30 @@ try {
         try {
             b_1.monitors.get(miners_config_json_1.interfaceName).capture();
             var lastRx_1 = 0;
+            var lastTx_1 = 0;
             setInterval(function () {
                 console.log(b_1.monitors.get(miners_config_json_1.interfaceName));
                 var currentRx = b_1.monitors.get(miners_config_json_1.interfaceName).totalRx;
-                var diff = currentRx - lastRx_1;
+                var currentTx = b_1.monitors.get(miners_config_json_1.interfaceName).totalTx;
+                var diffRx = currentRx - lastRx_1;
+                var diffTx = currentTx - lastTx_1;
                 lastRx_1 = currentRx;
+                lastTx_1 = currentTx;
                 //TODO: MAKE REQUEST
-            }, 1000);
+                fetch('http://localhost:3001/data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bandwidth: {
+                            rx: diffRx,
+                            tx: diffTx
+                        }
+                    })
+                });
+                console.log("Sent data to server!");
+            }, 5000);
         }
         catch (e) {
             console.log(e);

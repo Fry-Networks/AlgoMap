@@ -1,5 +1,6 @@
 import { interfaceName } from "./miners_config.json"
 import * as os from "os";
+const fetch = require('node-fetch');
 try {
     const BandwidthMonitor = require('bandwidth-monitor');
     const fs = require('fs');
@@ -33,8 +34,20 @@ try {
 
                 //TODO: MAKE REQUEST
 
-
-            }, 1000);
+                fetch('http://localhost:3001/data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bandwidth: {
+                            rx: diffRx,
+                            tx: diffTx
+                        }
+                    })
+                })
+                console.log("Sent data to server!");
+            }, 5000);
         } catch (e) {
             console.log(e);
             console.log("\n\n===================  I may need root permissions to be used, or the interface you entered is incorrect  ===================\n\n");

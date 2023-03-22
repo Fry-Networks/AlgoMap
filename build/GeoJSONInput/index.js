@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const jsx_runtime_1 = require("react/jsx-runtime");
-const react_1 = require("react");
-const reactstrap_1 = require("reactstrap");
-const geojson2h3_1 = require("geojson2h3");
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState } from "react";
+import { Label, Input, Button, FormGroup, Form } from "reactstrap";
+import { featureToH3Set } from "geojson2h3";
 const sample = {
     type: "FeatureCollection",
     features: [
@@ -46,17 +44,17 @@ const sample = {
     ],
 };
 const GeoJSONInput = ({ onSubmit }) => {
-    const [geoJSONInput, setGeoJSONInput] = (0, react_1.useState)("");
+    const [geoJSONInput, setGeoJSONInput] = useState("");
     function handleLoadFromJSON(e) {
         e.preventDefault();
         const validJSON = geoJSONInput.replace(/(\w+:)|(\w+ :)/g, function (s) {
             return '"' + s.substring(0, s.length - 1) + '":';
         });
         const pojo = JSON.parse(validJSON);
-        const h3Indices = (0, geojson2h3_1.featureToH3Set)(pojo, 12);
+        const h3Indices = featureToH3Set(pojo, 12);
         const h3IndicesSet = new Set(h3Indices);
         onSubmit(h3IndicesSet);
     }
-    return ((0, jsx_runtime_1.jsxs)(reactstrap_1.Form, Object.assign({ className: "w-100", onSubmit: handleLoadFromJSON }, { children: [(0, jsx_runtime_1.jsxs)(reactstrap_1.FormGroup, { children: [(0, jsx_runtime_1.jsx)(reactstrap_1.Label, Object.assign({ for: "geojson-input" }, { children: "Add GeoJSON" })), (0, jsx_runtime_1.jsx)(reactstrap_1.Input, { value: geoJSONInput, onChange: (e) => setGeoJSONInput(e.target.value), placeholder: JSON.stringify(sample, null, 4), id: "geojson-input", type: "textarea", rows: "9", cols: "5" })] }), (0, jsx_runtime_1.jsx)(reactstrap_1.Button, Object.assign({ disabled: !geoJSONInput, color: "primary" }, { children: "Load from GeoJSON" }))] })));
+    return (_jsxs(Form, Object.assign({ className: "w-100", onSubmit: handleLoadFromJSON }, { children: [_jsxs(FormGroup, { children: [_jsx(Label, Object.assign({ for: "geojson-input" }, { children: "Add GeoJSON" })), _jsx(Input, { value: geoJSONInput, onChange: (e) => setGeoJSONInput(e.target.value), placeholder: JSON.stringify(sample, null, 4), id: "geojson-input", type: "textarea", rows: "9", cols: "5" })] }), _jsx(Button, Object.assign({ disabled: !geoJSONInput, color: "primary" }, { children: "Load from GeoJSON" }))] })));
 };
-exports.default = GeoJSONInput;
+export default GeoJSONInput;
