@@ -40,7 +40,7 @@
     "zlib": "^1.0.5"
   },
   "scripts": {
-    "start": "react-scripts start && node build/acquireData/server.js",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

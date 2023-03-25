@@ -3,6 +3,8 @@ import MapWindow from "./MapWindow";
 import { Row, Col } from "reactstrap";
 import Map from "./Map";
 import jsonData from "./testdata.json";
+import ReactDOM from "react-dom";
+import React from "react";
 interface H3Indice {}
 
 const App = () => {
@@ -29,5 +31,14 @@ const App = () => {
     </div>
   );
 };
+
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById("root")
+)
+
 
 export default App;
