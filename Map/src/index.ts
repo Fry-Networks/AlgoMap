@@ -3,9 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css"
 
 import "./index.css"
 import "./App"
-import Server from "acquireData/server"
-
-Server.start(3001);
 
 
 //import reportWebVitals from "./reportWebVitals";
