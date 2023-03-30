@@ -24,7 +24,12 @@ const INITIAL_VIEW_STATE = {
   height: HEIGHT,
   width: WIDTH,
 };
+//@ts-ignore
+import mapboxgl from 'mapbox-gl/dist/mapbox-gl-csp';
+//@ts-ignore
+import MapboxWorker from 'worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker'; // Load worker code separately with worker-loader
 
+mapboxgl.workerClass = MapboxWorker; // Wire up loaded worker to be used instead of the default
 const Map = ({
   selectedH3Indices,
   onHexClick,
