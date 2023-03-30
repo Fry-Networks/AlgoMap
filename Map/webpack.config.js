@@ -30,5 +30,18 @@ module.exports = {
         //   net: 'empty',
         //   tls: 'empty'
         // },
-    }
+    },
+    //use babel.config.json
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader",
+                },
+            }
+        ],
+    },
+    
 }
