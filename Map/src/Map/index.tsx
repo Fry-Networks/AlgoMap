@@ -3,6 +3,12 @@ import { H3HexagonLayer } from "@deck.gl/geo-layers/typed";
 import { HeatmapLayer } from "@deck.gl/aggregation-layers/typed";
 import { useEffect, useState } from "react";
 import { object } from "prop-types";
+//@ts-ignore
+import mapboxgl from 'mapbox-gl/dist/mapbox-gl-csp';
+//@ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import MapboxWorker from 'worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker';
+
 
 import { bboxFromViewport, getH3IndicesForBB } from "./utility";
 import { PickingInfo } from "@deck.gl/core/typed";
@@ -24,10 +30,6 @@ const INITIAL_VIEW_STATE = {
   height: HEIGHT,
   width: WIDTH,
 };
-//@ts-ignore
-import mapboxgl from 'mapbox-gl/dist/mapbox-gl-csp';
-//@ts-ignore
-import MapboxWorker from 'worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker'; // Load worker code separately with worker-loader
 
 mapboxgl.workerClass = MapboxWorker; // Wire up loaded worker to be used instead of the default
 const Map = ({
