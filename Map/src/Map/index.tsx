@@ -1,18 +1,19 @@
 import DeckGL from "@deck.gl/react/typed";
 import { H3HexagonLayer } from "@deck.gl/geo-layers/typed";
 import { HeatmapLayer } from "@deck.gl/aggregation-layers/typed";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { object } from "prop-types";
 //@ts-ignore
 import mapboxgl from 'mapbox-gl/dist/mapbox-gl-csp';
 //@ts-ignore
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import MapboxWorker from 'worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker';
+import { debounce } from 'lodash';
 
 
 import { bboxFromViewport, getH3IndicesForBB } from "./utility";
 import { PickingInfo } from "@deck.gl/core/typed";
-import { geoToH3 } from "h3-js";
+import { geoToH3, h3ToGeo } from "h3-js";
 import ReactMapGL from 'react-map-gl';
 // const token = process.env.REACT_APP_MAPBOX_TOKEN
 const token =
@@ -29,7 +30,13 @@ const INITIAL_VIEW_STATE = {
   zoom: 8,
   height: HEIGHT,
   width: WIDTH,
+  zoomDelta: 0
 };
+
+
+
+
+
 
 mapboxgl.workerClass = MapboxWorker; // Wire up loaded worker to be used instead of the default
 const Map = ({
@@ -46,15 +53,15 @@ const Map = ({
   const [h3Indices, setH3Indices] = useState([]);
   const [layers, setLayers] = useState([{}]);
   const [heatmapPoints, setHeatmapPoints] = useState([[0]]);
+  const [intensity, setIntensity] = useState(1);
 
- 
 
 
   const renderLayers = () => {
     const boundingBox = bboxFromViewport(viewState);
     setH3Indices(getH3IndicesForBB(boundingBox, 8, points));
 
-    setHeatmapPoints(points.map((point) => [point[1], point[0] ]));
+    setHeatmapPoints(points.map((point) => [point[1], point[0]]));
     console.log("effect")
     setLayers([
       new H3HexagonLayer({
@@ -86,11 +93,20 @@ const Map = ({
               selectedH3Indices.clear();
             }
             selectedH3Indices.add(info.object);
+            //make it zoom in on the hexagon
+            const h3Index = info.object;
+            const [lat, lng] = h3ToGeo(h3Index);
+            setViewState({
+              ...viewState,
+              longitude: lng,
+              latitude: lat,
+              zoom: 10,
+            });
           }
           onHexClick(new Set(selectedH3Indices));
         },
       }),
-      
+
       new HeatmapLayer({
         id: "heatmapLayer",
         data: heatmapPoints,
@@ -99,11 +115,12 @@ const Map = ({
           return d;
         },
         getWeight: 1,
-        visible: viewState.zoom < 11,
+        visible: true,
         aggregation: "SUM",
-        intensity: 1,
+        // intensity: viewState.zoom < 9.5 ? 1 : 0,
+        intensity: intensity,
         radiusPixels: 20,
-        debounceTimeout: 500,
+        debounceTimeout: 100,
         colorRange: [
           [0, 0, 0, 0],
           //green 
@@ -112,16 +129,31 @@ const Map = ({
 
         ],
       }),
-    
+
 
     ]);
   };
   //if the zoom level is too low, don't show the hexagons
+  const prevZoom = useRef(viewState.zoom);
+  const [lastRenderTime, setLastRenderTime] = useState(Date.now());
+  const debouncedZoomChange = useCallback(
+    debounce((zoom: any) => {
+      setIntensity(zoom < 9.5 ? 1 : 0);
+    }, 100),
+    []
+  );
   useEffect(() => {
-    renderLayers();
-  }, [points]);
+    debouncedZoomChange(viewState.zoom);
+  }, [viewState.zoom, debouncedZoomChange]);
+  //if the zoom level is too low, don't show the hexagons
+  useEffect(() => {
+    if (points && points.length > 0) {
+      renderLayers();
+    }
+  }, [points, intensity]);
 
-    //@ts-ignore
+
+  //@ts-ignore
   if (layers[0].props?.data.length == 0) renderLayers();
 
 
@@ -147,7 +179,10 @@ const Map = ({
       width={WIDTH}
 
       initialViewState={viewState}
-      onViewStateChange={({ viewState }) => setViewState(viewState as any)}
+      onViewStateChange={({ viewState }) => {
+        console.log(viewState.zoom)
+        setViewState(viewState as any)
+      }}
       controller={{
         scrollZoom: {
           smooth: true,
@@ -155,7 +190,7 @@ const Map = ({
       }}
       layers={layers as any}
 
-      
+
     // getTooltip={getTooltip}
     >
 

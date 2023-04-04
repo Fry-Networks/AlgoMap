@@ -12,26 +12,28 @@ export default class Server {
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.set('trust proxy', true);
         this.app.post('/data', async (req, res) => {
- 
-            const data: any = req.body;
+
+            const data: reqData = req.body;
             console.log(data)
             if (!data) return res.sendStatus(400);
             const ip = this.getIpFromRequest(req);
             console.log(ip);
-            if(!ip || ip === "::1") return res.send("Localhost detected");
-            const location = await this.getIpLocation(data.ip);
+            if (!ip || ip === "::1") return res.send("Localhost detected");
+            const location = await this.getIpLocation(ip);
             if (!location) return res.sendStatus(400);
             console.log(location);
             Database.addMiner({
                 ip: ip,
                 bandwidth: data.bandwidth,
                 location: location,
-                lastUpdate: Date.now()
+                lastUpdate: Date.now(),
+                hwid: data.hwid
             })
             res.sendStatus(200);
         });
-        this.app.get("/", (req, res) => {
-            res.send("Nothing here");
+        this.app.get("/points", (req, res) => {
+            const points = Database.getMinersPoints();
+            res.send(points);
         })
         this.app.listen(port);
         console.log(`Server started on port ${port}`);
@@ -61,13 +63,13 @@ export default class Server {
             req.connection.remoteAddress || ''
             // @ts-ignore
         ).split(',');
-            const ip = ips[0].trim();
-            if (ip === "::1") return null;
-            //parse with regex an ipv4 address
-            const ipv4Regex = /(?:[0-9]{1,3}\.){3}[0-9]{1,3}/;
-            const ipv4 = ipv4Regex.exec(ip);
-            if (ipv4) return ipv4[0];
-            else return null
+        const ip = ips[0].trim();
+        if (ip === "::1") return null;
+        //parse with regex an ipv4 address
+        const ipv4Regex = /(?:[0-9]{1,3}\.){3}[0-9]{1,3}/;
+        const ipv4 = ipv4Regex.exec(ip);
+        if (ipv4) return ipv4[0];
+        else return null
     };
 }
 
@@ -76,7 +78,9 @@ export interface MinerData {
     bandwidth: {
         rx: number;
         tx: number;
+        time: number;
     };
+    hwid: string;
     location: {
         country: string;
         city: string;
@@ -86,3 +90,13 @@ export interface MinerData {
     lastUpdate: number;
 }
 
+
+
+interface reqData {
+    bandwidth: {
+        rx: number;
+        tx: number;
+        time: number;
+    };
+    hwid: string;
+}

@@ -21,6 +21,7 @@
     "geojson2h3": "^1.1.0",
     "h3-js": "^3.7.0",
     "http": "^0.0.1-security",
+    "lodash": "^4.17.21",
     "mapbox-gl": "^1.13.1",
     "net": "^1.0.2",
     "node-polyfill-webpack-plugin": "^2.0.1",
@@ -70,6 +71,7 @@
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
+    "@types/lodash": "^4.14.192",
     "@types/react-dom": "^18.0.11",
     "ts-loader": "^9.0.0",
     "typescript": "^4.0.0"
