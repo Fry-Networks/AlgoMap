@@ -10,6 +10,13 @@ export default class Server {
 
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
+
+        this.app.use((req, res, next) => {
+            res.header('Access-Control-Allow-Origin', '*'); // You can replace '*' with 'http://localhost:3000' to restrict it to that origin
+            res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+            next();
+          });
+
         this.app.set('trust proxy', true);
         this.app.post('/data', async (req, res) => {
 
