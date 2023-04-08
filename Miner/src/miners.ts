@@ -37,7 +37,7 @@ async function main() {
                     const diffTx = currentTx - lastTx;
                     lastRx = currentRx;
                     lastTx = currentTx;
-                    axios.post("http://46.101.134.102:3001/data", {
+                    axios.post(`${config.baseurl}/data`, {
                         bandwidth: {
                             rx: diffRx,
                             tx: diffTx
@@ -92,7 +92,7 @@ async function main() {
                     });
                     const bestInterface = interfacesResults[0];
 
-                    fs.writeFileSync("miners_config.json", JSON.stringify({ interfaceName: bestInterface.device.name }));
+                    fs.writeFileSync("miners_config.json", JSON.stringify({ interfaceName: bestInterface.device.name, baseurl: config.baseurl }));
                     console.log(`Best interface found: ${bestInterface.device.name}\nPlease restart the script to use it!`);
                 } catch (e) {
                     console.log(e);

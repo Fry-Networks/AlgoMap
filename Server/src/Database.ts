@@ -13,7 +13,7 @@ export default class Database {
                 bandwidth: [{
                     rx: miner.bandwidth.rx,
                     tx: miner.bandwidth.tx,
-                    time: miner.bandwidth.time
+                    time: Date.now()
                 }]
             }
             this.db.set(miner.hwid, data);
@@ -30,7 +30,7 @@ export default class Database {
                 {
                     rx: miner.bandwidth.rx,
                     tx: miner.bandwidth.tx,
-                    time: miner.bandwidth.time
+                    time: Date.now()
                 },
             ],
             lastUpdate: Date.now()
