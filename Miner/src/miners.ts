@@ -3,7 +3,8 @@ import * as os from "os";
 import axios from "axios";
 const interfaceName = config.interfaceName;
 import fs from 'fs';
-import { machineId } from "node-machine-id";
+import pkg from 'node-machine-id';
+const { machineId } = pkg;
 async function main() {
     try {
         const BandwidthMonitor = (await import('bandwidth-monitor')).default;
@@ -36,7 +37,7 @@ async function main() {
                     const diffTx = currentTx - lastTx;
                     lastRx = currentRx;
                     lastTx = currentTx;
-                    axios.post("http://localhost:3001/data", {
+                    axios.post("http://46.101.134.102:3001/data", {
                         bandwidth: {
                             rx: diffRx,
                             tx: diffTx
@@ -44,7 +45,7 @@ async function main() {
                         hwid: hwid
                     })
                     console.log("Sent data to server!");
-                }, interval);
+                }, 1000);
             } catch (e) {
                 console.log(e);
                 console.log("\n\n===================  I may need root permissions to be used, or the interface you entered is incorrect  ===================\n\n");

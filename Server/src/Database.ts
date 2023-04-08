@@ -2,8 +2,8 @@ import Enmap from 'enmap';
 import { MinerData } from './Server.js';
 
 export default class Database {
-    static db: Enmap<string, MinerDataDB> = new Enmap({ name: 'miners' })
-    static addMiner(miner: MinerData) {
+    public db: Enmap<string, MinerDataDB> = new Enmap({ name: 'miners' })
+    public addMiner(miner: MinerData) {
         if (this.db.has(miner.hwid)) {
             this.updateMiner(miner);
         } else {
@@ -19,7 +19,7 @@ export default class Database {
             this.db.set(miner.hwid, data);
         }
     }
-    static updateMiner(miner: MinerData) {
+    public updateMiner(miner: MinerData) {
         const oldMiner = this.db.get(miner.hwid);
         if (!oldMiner) return this.addMiner(miner);
 
@@ -45,10 +45,10 @@ export default class Database {
 
 
 
-    static getMiners() {
+    public getMiners() {
         return this.db.array();
     }
-    static getMinersPoints() {
+    public getMinersPoints() {
         const miners = this.getMiners();
         const points: toSend[] = [];
         miners.forEach((miner) => {

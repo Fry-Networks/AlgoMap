@@ -22,7 +22,7 @@ export default class Server {
             const location = await this.getIpLocation(ip);
             if (!location) return res.sendStatus(400);
             console.log(location);
-            Database.addMiner({
+            this.db.addMiner({
                 ip: ip,
                 bandwidth: data.bandwidth,
                 location: location,
@@ -32,7 +32,7 @@ export default class Server {
             res.sendStatus(200);
         });
         this.app.get("/points", (req, res) => {
-            const points = Database.getMinersPoints();
+            const points = this.db.getMinersPoints();
             res.send(points);
         })
         this.app.listen(port);
