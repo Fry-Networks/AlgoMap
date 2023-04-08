@@ -14,13 +14,18 @@ const App = () => {
 
   //const points = jsonData.data.map((d) => [d.location.lat, d.location.lng]);
   const baseurl = config.baseurl;
-  const [points, setPoints] = useState([]);
+  const [pointsData, setPointsData] = useState<PointData[]>([]);
+  const [points, setPoints] = useState([[1]]);
 
   useEffect(() => {
     const fetchPoints = async () => {
       try {
         const response = await axios.get(baseurl + '/points');
-        setPoints(response.data); // Assuming the API returns an array of points
+        const data: PointData[] = response.data;
+        setPointsData(response.data); // Assuming the API returns an array of points
+        console.log("pointsData", pointsData);
+        const points = data.map((d) => [d.lat, d.lon]);
+        setPoints(points);
       } catch (error) {
         console.error('Error fetching points:', error);
       }
@@ -49,7 +54,7 @@ const App = () => {
           
             }}
           ></Map>
-          <MapWindow {...{ selectedH3Indices }}>
+          <MapWindow {...{ selectedH3Indices, pointsData }}>
             <h2>Window Title</h2>
             <p>Some content</p>
           </MapWindow>
@@ -69,3 +74,29 @@ ReactDOM.render(
 
 
 export default App;
+
+export interface PointData {
+  lat: number;
+  lon: number;
+  hwid: string;
+  five: {
+    rx: number;
+    tx: number;
+  };
+  sevendays: {
+    rx: number;
+    tx: number;
+  };
+  fourteendays: {
+    rx: number;
+    tx: number;
+  };
+  month: {
+    rx: number;
+    tx: number;
+  };
+  total: {
+    rx: number;
+    tx: number;
+  };
+}

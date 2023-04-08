@@ -54,7 +54,7 @@ const Map = ({
   const [layers, setLayers] = useState([{}]);
   const [heatmapPoints, setHeatmapPoints] = useState([[0]]);
   const [intensity, setIntensity] = useState(1);
-
+  console.log("points", points)
 
 
   const renderLayers = () => {
@@ -62,7 +62,7 @@ const Map = ({
     setH3Indices(getH3IndicesForBB(boundingBox, 8, points));
 
     setHeatmapPoints(points.map((point) => [point[1], point[0]]));
-    console.log("effect")
+    console.log('Render')
     setLayers([
       new H3HexagonLayer({
         id: "h3-hexagon-layer",
@@ -74,7 +74,10 @@ const Map = ({
         filled: true,
         extruded: true,
         elevationScale: 0,
-        getHexagon: (d) => d,
+        getHexagon: (d) => {
+          console.log("getHex: ", d);
+          return d;
+        },
         getLineColor: [0, 0, 0],
         getFillColor: (d) => {
           const isSelected = selectedH3Indices.has(d);
@@ -94,6 +97,7 @@ const Map = ({
             }
             selectedH3Indices.add(info.object);
             //make it zoom in on the hexagon
+            /*
             const h3Index = info.object;
             const [lat, lng] = h3ToGeo(h3Index);
             setViewState({
@@ -102,6 +106,7 @@ const Map = ({
               latitude: lat,
               zoom: 10,
             });
+            */
           }
           onHexClick(new Set(selectedH3Indices));
         },
@@ -134,8 +139,6 @@ const Map = ({
     ]);
   };
   //if the zoom level is too low, don't show the hexagons
-  const prevZoom = useRef(viewState.zoom);
-  const [lastRenderTime, setLastRenderTime] = useState(Date.now());
   const debouncedZoomChange = useCallback(
     debounce((zoom: any) => {
       setIntensity(zoom < 9.5 ? 1 : 0);
@@ -191,7 +194,7 @@ const Map = ({
       layers={layers as any}
 
 
-    // getTooltip={getTooltip}
+     getTooltip={getTooltip}
     >
 
       <ReactMapGL
