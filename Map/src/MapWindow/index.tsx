@@ -3,66 +3,65 @@ import { geoToH3 } from "h3-js";
 import jsonData from "../testdata.json";
 import { useState } from "react";
 import { PointData } from "App";
-/*
-   {
-    data: {
-      ip: string,
-      location: {
-        lat: number,
-        lng: number
-      },
-      bandwidth: {
-        upload: number,
-        download: number
-      }
-    }[]
-  } 
-  */
-  type MapWindowProps = {
-    selectedH3Indices: any; // Replace 'any' with the appropriate type if possible
-    pointsData: PointData[];
-  };
-  
-  const MapWindow: React.FC<MapWindowProps> = ({ selectedH3Indices, pointsData }) => {
-  
-  //selectedH3Indices is a Set
+
+type MapWindowProps = {
+  selectedH3Indices: Set<string>;
+  pointsData: PointData[];
+};
+
+const MapWindow: React.FC<MapWindowProps> = ({ selectedH3Indices, pointsData }) => {
   console.log("pointsData", pointsData);
-  if (selectedH3Indices.size > 0) {
-    const points = pointsData.map((d) => {
 
-      return {
-        lat: d.lat,
-        lon: d.lon,
-        bandwidth: {
-          five: d.five,
-          sevendays: d.sevendays,
-          fourteendays: d.fourteendays,
-          month: d.month,
-          total: d.total
-        }
-      }
+  const [selectedRate, setSelectedRate] = useState("five");
+
+  const bytesToMbits = (bytes: number) => {
+    return bytes / 125000; // 1 byte = 0.008 Mbits, so divide by 125000 to get Mbits
+  };
+
+  const getBandwidth = (point: PointData, key: string) => {
+    switch (key) {
+      case "five":
+        return point.five;
+      case "sevendays":
+        return point.sevendays;
+      case "fourteendays":
+        return point.fourteendays;
+      case "month":
+        return point.month;
+      default:
+        return point.five;
     }
-    );
-    const selectedPoint = points.filter((point) =>
-      //point is an array of lat and long, make sure that the lat and long are in the selectedH3Indices
-      selectedH3Indices.has(geoToH3(point.lat as number, point.lon as number, 8))
-    );
+  };
 
+  if (selectedH3Indices.size > 0) {
+    const selectedPoint = pointsData.filter((point) =>
+      selectedH3Indices.has(geoToH3(point.lat, point.lon, 8))
+    );
 
     return (
       <div className="MapWindow">
         <div className="blurry"></div>
         <div className="data">
-          <h2>Selected Hex ({selectedH3Indices})</h2>
+          <h2>Selected Hex ({Array.from(selectedH3Indices).join(', ')})</h2>
           <ul className="check-list">
-            
             {selectedPoint.map((point) => {
-              console.log("a");
-              //get the bandwidth for each point
-              const h3id = geoToH3(point.lat as number, point.lon as number, 8);
+              const h3id = geoToH3(point.lat, point.lon, 8);
+              const bandwidth = getBandwidth(point, selectedRate); // Use the getBandwidth function here
+
+
               return (
                 <li key={h3id}>
-                 ⬆ {point.bandwidth.sevendays.tx} mbits/s  ⬇:{point.bandwidth.sevendays.rx} mbits/s
+                  <div className="point-box">
+                    <h3>Point: {h3id}</h3>
+                    <p>RX: {bytesToMbits(bandwidth.rx)} Mbits</p>
+                    <p>TX: {bytesToMbits(bandwidth.tx)} Mbits</p>
+                    <div className="rate-buttons">
+                      <button onClick={() => setSelectedRate("five")}>5 mins</button>
+                      <button onClick={() => setSelectedRate("sevendays")}>7 days</button>
+                      <button onClick={() => setSelectedRate("fourteendays")}>14 days</button>
+                      <button onClick={() => setSelectedRate("month")}>1 month</button>
+                    </div>
+                  </div>
                 </li>
               );
             })}
