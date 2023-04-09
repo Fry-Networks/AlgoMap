@@ -53,13 +53,35 @@ const MapWindow: React.FC<MapWindowProps> = ({ selectedH3Indices, pointsData }) 
                 <li key={h3id}>
                   <div className="point-box">
                     <h3>Point: {h3id}</h3>
-                    <p>RX: {bytesToMbits(bandwidth.rx)} Mbits</p>
-                    <p>TX: {bytesToMbits(bandwidth.tx)} Mbits</p>
+                    <p>Download: {bytesToMbits(bandwidth.rx)} Mbits</p>
+                    <p>Upload: {bytesToMbits(bandwidth.tx)} Mbits</p>
                     <div className="rate-buttons">
-                      <button onClick={() => setSelectedRate("five")}>5 mins</button>
-                      <button onClick={() => setSelectedRate("sevendays")}>7 days</button>
-                      <button onClick={() => setSelectedRate("fourteendays")}>14 days</button>
-                      <button onClick={() => setSelectedRate("month")}>1 month</button>
+                      <div className="rate-buttons">
+                        <button
+                          className={selectedRate === "five" ? "selected" : ""}
+                          onClick={() => setSelectedRate("five")}
+                        >
+                          5 mins
+                        </button>
+                        <button
+                          className={selectedRate === "sevendays" ? "selected" : ""}
+                          onClick={() => setSelectedRate("sevendays")}
+                        >
+                          7 days
+                        </button>
+                        <button
+                          className={selectedRate === "fourteendays" ? "selected" : ""}
+                          onClick={() => setSelectedRate("fourteendays")}
+                        >
+                          14 days
+                        </button>
+                        <button
+                          className={selectedRate === "month" ? "selected" : ""}
+                          onClick={() => setSelectedRate("month")}
+                        >
+                          1 month
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </li>

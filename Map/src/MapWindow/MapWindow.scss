@@ -98,4 +98,27 @@ $speed: 1s;
   .rate-buttons button:hover {
     background-color: #45a049;
   }
+  .rate-buttons button.selected {
+    background-color: #4caf50;
+  }
+  
+  .rate-buttons button:not(.selected) {
+    background-color: #ccc;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    outline: none;
+    transition: background-color 0.3s;
+  }
+  
+  .rate-buttons button:not(.selected):hover {
+    background-color: #b3b3b3;
+  }
   
